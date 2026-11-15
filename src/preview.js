@@ -43,11 +43,6 @@ function fakeStream(label, hue) {
       g.textAlign = 'center';
       g.textBaseline = 'middle';
       g.fillText(String(label).slice(0, 2), c.width / 2, c.height / 2 - 26);
-      g.fillStyle = 'rgba(0,0,0,.35)';
-      g.fillRect(0, c.height - 46, c.width, 46);
-      g.fillStyle = '#fff';
-      g.font = '700 26px system-ui, sans-serif';
-      g.fillText(label, c.width / 2, c.height - 22);
     };
     draw();
     const timer = setInterval(draw, 250);
@@ -247,6 +242,7 @@ export class PreviewRoom {
     const people = this.state.participants;
     if (mode === 'clear') {
       for (const p of people) p.breakout_group = 'main';
+      this.state.me.breakout_group = 'main';
       this.state.session.breakout_config = { active: false, size, mode, groups: 0 };
       this.workbook.set('main', this.workbook.get('main') ?? '');
       this.syncWorkbooks();
@@ -273,6 +269,8 @@ export class PreviewRoom {
     }
     const groups = Math.max(1, Math.ceil(ordered.length / size));
     ordered.forEach((p, i) => { p.breakout_group = `group-${(i % groups) + 1}`; });
+    const mine = people.find((p) => p.key === this.me.key);
+    this.state.me.breakout_group = mine ? mine.breakout_group : 'main';
     for (let i = 1; i <= groups; i++) if (!this.workbook.has(`group-${i}`)) this.workbook.set(`group-${i}`, '');
     this.state.session.breakout_config = { active: true, size, mode, groups };
     this.syncWorkbooks();

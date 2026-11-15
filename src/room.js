@@ -161,14 +161,28 @@ export class Room {
     this.render();
   }
 
+  /** 이 패널 안에서 글을 쓰는 중이면 다시 그리지 않는다 (입력 중 화면이 튀지 않게) */
+  typingIn(paneId) {
+    const a = document.activeElement;
+    const p = document.getElementById(paneId);
+    if (!a || !p || !p.contains(a)) return false;
+    return a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT';
+  }
+
   render() {
+    const busy = {
+      flow: this.typingIn('pane-flow'),
+      poll: this.typingIn('pane-poll'),
+      book: this.typingIn('pane-book'),
+      groups: this.typingIn('pane-groups'),
+    };
     this.renderTop();
     this.renderTiles();
-    this.renderFlow();
-    this.renderPoll();
+    if (!busy.flow) this.renderFlow();
+    if (!busy.poll) this.renderPoll();
     this.renderPeople();
-    this.renderBook();
-    this.renderGroups();
+    if (!busy.book) this.renderBook();
+    if (!busy.groups) this.renderGroups();
     this.renderBanner();
     this.renderBar();
     this.renderClock();
@@ -765,9 +779,6 @@ export class Room {
   // ---------- 워크북 ----------
   renderBook() {
     const box = document.getElementById('pane-book');
-    const focus = document.activeElement;
-    const typing = focus && box.contains(focus) && focus.tagName === 'TEXTAREA';
-    if (typing) return;    // 쓰는 중에 다시 그리면 글이 튄다
     box.textContent = '';
     const head = el('div', 'rail-head');
     head.append(el('h3', null, '공동 워크북'));
