@@ -71,6 +71,8 @@ export class Room {
     this.bindKeys();
     this.render();
     this.tickTimer = setInterval(() => this.renderClock(), 1000);
+    this._onResize = () => this.layoutGrid(this.tilePeople().length, window.innerWidth < 620 ? 96 : 150);
+    window.addEventListener('resize', this._onResize);
     if (this.mode === 'live') {
       this.watch();
       this.refreshTimer = setInterval(() => this.refresh(), 3500);
@@ -84,6 +86,7 @@ export class Room {
 
   destroy() {
     clearInterval(this.tickTimer);
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
     clearInterval(this.refreshTimer);
     clearInterval(this.talkTimer);
     clearTimeout(this.bookTimer);
@@ -169,20 +172,30 @@ export class Room {
     return a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT';
   }
 
+  /** 같은 내용이면 다시 그리지 않는다 — 1초마다 상태가 와도 화면이 튀지 않게 */
+  same(key, value) {
+    const s = JSON.stringify(value);
+    this._sig ??= {};
+    if (this._sig[key] === s) return true;
+    this._sig[key] = s;
+    return false;
+  }
+
   render() {
-    const busy = {
-      flow: this.typingIn('pane-flow'),
-      poll: this.typingIn('pane-poll'),
-      book: this.typingIn('pane-book'),
-      groups: this.typingIn('pane-groups'),
-    };
     this.renderTop();
     this.renderTiles();
-    if (!busy.flow) this.renderFlow();
-    if (!busy.poll) this.renderPoll();
-    this.renderPeople();
-    if (!busy.book) this.renderBook();
-    if (!busy.groups) this.renderGroups();
+    const s = this.session;
+    const tl = s.timeline || [];
+    // 패널은 '내용이 바뀌었을 때만' 다시 그린다 (입력 중 글자가 날아가지 않게)
+    if (!this.same('flow', [tl, s.current_step_index, this.isHost, this.videoBudget, this.timelineEditing, this.participants.length, this.myGroup])
+      && !this.typingIn('pane-flow')) this.renderFlow();
+    if (!this.same('poll', [this.state.poll, this.isHost, this.myGroup]) && !this.typingIn('pane-poll')) this.renderPoll();
+    if (!this.same('people', this.participants.map((p) => [p.key, p.name, Math.round(Number(p.talk_seconds)), p.online, p.breakout_group])) && !this.typingIn('pane-people')) this.renderPeople();
+    const groups = this.groupList();
+    if (!this.same('book', [this.bookGroup, groups, this.state.workbook, this.state.workbooks, this.isHost, this.myGroup])
+      && !this.typingIn('pane-book')) this.renderBook();
+    if (!this.same('groups', [s.breakout_config, this.participants.map((p) => [p.key, p.breakout_group, Math.round(Number(p.talk_seconds) / 5)]), this.state.workbooks, this.isHost, this.myGroup])
+      && !this.typingIn('pane-groups')) this.renderGroups();
     this.renderBanner();
     this.renderBar();
     this.renderClock();
@@ -329,12 +342,29 @@ export class Room {
     document.addEventListener('keydown', go, true);
   }
 
+  /** 타일이 4:3 에 가장 가까워지는 열 수를 골라 무대를 채운다 */
+  layoutGrid(count, minW = 0) {
+    const grid = document.getElementById('rm-grid');
+    if (!grid || !count) return;
+    const W = Math.max(1, grid.clientWidth), H = Math.max(1, grid.clientHeight);
+    let best = { cols: Math.min(4, count), score: Infinity };
+    for (let c = 1; c <= Math.min(8, count); c++) {
+      const rows = Math.ceil(count / c);
+      const w = W / c, h = H / rows;
+      if (minW && w < minW) continue;
+      const score = Math.abs(w / h - 4 / 3);
+      if (score < best.score) best = { cols: c, score };
+    }
+    grid.style.gridTemplateColumns = `repeat(${best.cols}, minmax(0, 1fr))`;
+  }
+
   renderTiles() {
     const wrap = document.getElementById('rm-grid');
     const people = this.tilePeople();
     const grid = document.getElementById('rm-grid');
     grid.classList.toggle('many', people.length > 6);
     grid.classList.toggle('breakout', this.myGroup !== 'main');
+    this.layoutGrid(people.length, window.innerWidth < 620 ? 96 : 150);
     const seen = new Set();
     for (const p of people) {
       seen.add(String(p.key));
