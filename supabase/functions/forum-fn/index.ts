@@ -585,3 +585,5 @@ Deno.serve(async (req) => {
     return json(req, 500, { error: '서버 오류가 났습니다.', code: (e as { code?: string })?.code });
   }
 });
+
+// 배포 확인용 주석 (2026-11-15 자동 배포 켠 뒤 첫 배포)
