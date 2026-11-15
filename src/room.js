@@ -154,7 +154,10 @@ export class Room {
   // ---------- 상태 반영 ----------
   update(next) {
     const prevGroup = this.myGroup;
+    const prevPoll = this.state?.poll?.id;
     this.state = next;
+    // 새 투표가 열리면 그 패널로 안내한다 (학생이 놓치지 않게)
+    if (next.poll && next.poll.status === 'open' && next.poll.id !== prevPoll) this.showPane('poll');
     const group = this.myGroup;
     if (group !== prevGroup) {
       // 모둠이 바뀌면 워크북도 내 모둠 것으로 따라간다
