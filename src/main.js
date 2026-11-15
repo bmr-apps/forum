@@ -193,6 +193,24 @@ async function joinSession({ code, name, key }) {
   }
 }
 
+/** 체험 모드의 가짜 서버를 api.js 와 같은 모양(인자 순서)으로 감싼다 */
+function previewApi(p) {
+  return {
+    lookup: async () => ({ code: p.state.code, title: p.state.session.title, host_name: '선생님', status: 'open', participants: p.state.participants.length }),
+    state: async () => p.state,
+    step: (_c, _k, i) => p.step(i),
+    timeline: (_c, _k, tl) => p.timeline(tl),
+    openPoll: (_c, _k, o) => p.openPoll(o || {}),
+    closePoll: () => p.closePoll(),
+    vote: (_c, _k, v) => p.vote(v || {}),
+    breakout: (_c, _k, o) => p.breakout(o || {}),
+    saveWorkbook: (_c, _k, g, content) => p.saveWorkbook(g, content),
+    talk: async () => ({ ok: true }),
+    end: () => p.end(),
+    aiReport: () => p.aiReport(),
+  };
+}
+
 // ---------- 수업 화면 ----------
 async function enterRoom({ mode, code, key, state }) {
   const isPreview = mode === 'preview' || S.previewMode;
@@ -217,7 +235,7 @@ async function enterRoom({ mode, code, key, state }) {
 
   const room = new Room({
     mode: isPreview ? 'preview' : 'live',
-    api: isPreview ? preview : api,
+    api: isPreview ? previewApi(preview) : api,
     code: isPreview ? initialState.code : code,
     key: isPreview ? initialState.me.key : key,
     state: initialState,
