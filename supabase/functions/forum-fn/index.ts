@@ -406,7 +406,18 @@ Deno.serve(async (req) => {
       let myKey = key && KEY_RE.test(key) ? key : '';
       const uKey = user?.id ? `u:${user.id}` : '';
       if (uKey && s.host_key === uKey) myKey = uKey;   // 진행자가 구글 로그인으로 다시 들어온 경우
-      else if (!myKey) myKey = uKey || randomKey();     // 처음 들어온 로그인 사용자는 u:<아이디>
+      else if (!myKey) {
+        if (uKey) myKey = uKey;                        // 처음 들어온 로그인 사용자는 u:<아이디>
+        else {
+          // 이름이 같은 사람이 이미 이 수업에 있고 지금은 자리에 없으면 그 사람으로 이어 준다
+          // (학생이 브라우저를 바꾸거나 기록을 지워 다시 들어올 때 명단이 두 줄로 늘지 않게)
+          const [off] = await sql`
+            select user_key from forum.participants
+            where session_id = ${s.id} and name = ${name} and last_seen < now() - interval '45 seconds'
+            order by joined_at desc limit 1`;
+          myKey = off ? String(off.user_key) : randomKey();
+        }
+      }
       const host = s.host_key === myKey;
       await sql`
         insert into forum.participants (session_id, user_key, name, role, last_seen)

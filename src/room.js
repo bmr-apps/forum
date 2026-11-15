@@ -156,10 +156,15 @@ export class Room {
     const prevGroup = this.myGroup;
     this.state = next;
     const group = this.myGroup;
-    if (group !== prevGroup && this.mode === 'live') {
-      this.classroom?.setGroup?.(group);
-      for (const t of this.tiles.values()) this.disposeTile(t);
-      this.tiles.clear();
+    if (group !== prevGroup) {
+      // 모둠이 바뀌면 워크북도 내 모둠 것으로 따라간다
+      this.bookGroup = group;
+      this._sig = {};
+      if (this.mode === 'live') {
+        this.classroom?.setGroup?.(group);
+        for (const t of this.tiles.values()) this.disposeTile(t);
+        this.tiles.clear();
+      }
     }
     this.render();
   }
