@@ -249,6 +249,8 @@ a { color: inherit; }
 }
 .rtab:hover { color: #dbeaf3; background: rgba(255, 255, 255, .05); }
 .rtab.on { color: #fff; border-bottom-color: var(--cyan); background: var(--dark-3); }
+.rtab.close { flex: 0 0 34px; color: #9fb8c6; font-weight: 800; }
+@media (min-width: 981px) { .rtab.close { display: none; } }
 .rail-body { overflow-y: auto; min-height: 0; padding: 12px; }
 .pane-rail { display: grid; gap: 10px; align-content: start; }
 .rail-head { display: flex; align-items: center; gap: 8px; }

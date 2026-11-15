@@ -215,11 +215,7 @@ export class Room {
     document.getElementById('rm-code').onclick = () => this.copyInvite();
     document.getElementById('rm-share').onclick = () => this.copyInvite();
     document.getElementById('rm-leave').onclick = () => this.leave();
-    document.getElementById('rm-rail-toggle').onclick = () => {
-      const rail = document.getElementById('rm-rail');
-      const open = rail.classList.toggle('open');
-      document.getElementById('rm-rail-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
-    };
+    document.getElementById('rm-rail-toggle').onclick = () => this.toggleRail();
     document.getElementById('rm-banner-act').onclick = () => this.bannerAction?.();
   }
 
@@ -514,7 +510,8 @@ export class Room {
           if (i < poll.options.length) this.vote(i);
         }
       } else if (k === 'escape') {
-        this.closeModal();
+        if (this.modalOpen) this.closeModal();
+        else this.toggleRail(false);
       }
     };
     document.addEventListener('keydown', this._keys);
@@ -1132,8 +1129,19 @@ export class Room {
   // ---------- 패널 탭 ----------
   bindRail() {
     for (const tab of document.querySelectorAll('.rtab')) {
+      if (!tab.dataset.pane) continue;
       tab.onclick = () => this.showPane(tab.dataset.pane);
     }
+    const close = document.getElementById('rm-rail-close');
+    if (close) close.onclick = () => this.toggleRail(false);
+  }
+
+  toggleRail(open) {
+    const rail = document.getElementById('rm-rail');
+    const btn = document.getElementById('rm-rail-toggle');
+    const on = open ?? !rail.classList.contains('open');
+    rail.classList.toggle('open', on);
+    if (btn) btn.setAttribute('aria-expanded', on ? 'true' : 'false');
   }
 
   showPane(name) {
