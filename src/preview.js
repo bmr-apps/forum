@@ -306,11 +306,21 @@ export class PreviewRoom {
     const quiet = people.filter((p) => p.talk_seconds < mean * 0.5);
     const top = [...people].sort((a, b) => b.talk_seconds - a.talk_seconds).slice(0, 3);
     await new Promise((r) => setTimeout(r, 1200));
+    const totalSeconds = this.state.participants.reduce((a, p) => a + p.talk_seconds, 0) || 1;
+    const studentSeconds = people.reduce((a, p) => a + p.talk_seconds, 0);
+    const hostSeconds = totalSeconds - studentSeconds;
     const report = {
-      summary: `[체험 모드 예시] ${this.state.session.title} — 12명 참여, 발화는 대체로 고른 편입니다. `
-        + `상위 발화는 ${top.map((t) => t.name).join(', ')} 쪽에 몰렸고, ${quiet.slice(0, 2).map((q) => q.name).join(', ') || '일부'} 학생은 발화가 적었습니다. `
-        + '투표에서 의견이 갈렸으니, 다음 시간에는 반대 의견을 먼저 말하게 하는 2인 인터뷰로 시작해 보세요.',
-      metrics: { students: people.length, total_people: this.state.participants.length, minutes: 28, mean_seconds: Math.round(mean), host_share: 12, participation: 92 },
+      summary: `[체험 모드 예시] ${this.state.session.title} — ${this.state.participants.length}명 참여, `
+        + `학생 발화는 전체의 ${Math.round((studentSeconds / totalSeconds) * 100)}% 입니다. `
+        + `발화 상위는 ${top.map((t) => t.name).join(', ')} 쪽이고, ${quiet.length ? `${quiet.slice(0, 2).map((q) => q.name).join(', ')} 학생은 발화가 적은 편입니다.` : '모두 한 번 이상 말했습니다.'} `
+        + (this.state.poll ? '투표에서 의견이 갈렸으니, 다음 시간에는 반대 의견을 먼저 말하게 하는 2인 인터뷰로 시작해 보세요.' : '다음 시간에는 도입에서 1분 생각 시간 뒤 바로 투표를 열어 보세요.'),
+      metrics: {
+        students: people.length, total_people: this.state.participants.length, minutes: 28,
+        total_talk_seconds: Math.round(totalSeconds), student_talk_seconds: Math.round(studentSeconds),
+        mean_seconds: Math.round(mean), host_share: Math.round((hostSeconds / totalSeconds) * 100),
+        student_share: Math.round((studentSeconds / totalSeconds) * 100), participation: 92,
+        steps_total: this.state.session.timeline.length, step_reached: this.state.session.current_step_index + 1,
+      },
       highlights: [
         `발화 상위: ${top.map((t) => `${t.name}(${Math.round(t.talk_seconds)}초)`).join(', ')}`,
         quiet.length ? `발화가 적은 편: ${quiet.map((q) => q.name).join(', ')}` : '모두 고르게 발화했습니다.',
