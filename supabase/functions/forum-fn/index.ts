@@ -346,6 +346,25 @@ Deno.serve(async (req) => {
       return json(req, 200, { ...state, viewer: user ? { email: user.email } : null });
     }
 
+    // ---------- 읽기 전용 GET (워크북·지난 리포트) ----------
+    if (isGet && (path === '/workbook' || path === '/reports')) {
+      const qcode = clean(q.get('code'), 8).toUpperCase();
+      const qkey = String(q.get('key') ?? '');
+      if (!KEY_RE.test(qkey)) throw new HttpError(400, '내 신분표(key)가 없습니다.');
+      const s2 = await sessionByCode(sql, qcode);
+      const me2 = await participantOf(sql, s2.id, qkey);
+      if (!me2) throw new HttpError(403, '이 수업에 들어온 기록이 없어요. 다시 입장해 주세요.');
+      if (path === '/workbook') {
+        const g = clean(q.get('group'), 20) || me2.breakout_group || 'main';
+        if (!/^(main|group-[1-9][0-9]?)$/.test(g)) throw new HttpError(400, '모둠 이름이 올바르지 않습니다.');
+        const [note] = await sql`select group_id, content, updated_by, updated_at from forum.workbook_notes where session_id = ${s2.id} and group_id = ${g}`;
+        return json(req, 200, note ?? { group_id: g, content: '', updated_by: '', updated_at: null });
+      }
+      if (s2.host_key !== qkey) throw new HttpError(403, '지난 리포트는 진행자만 볼 수 있어요.');
+      const rows = await sql`select id, summary, feedback_json, model, created_at from forum.ai_reports where session_id = ${s2.id} order by id desc limit 20`;
+      return json(req, 200, { reports: rows });
+    }
+
     if (req.method !== 'POST') return json(req, 405, { error: '지원하지 않는 방식입니다.' });
     const b = await readBody(req);
     const codeIn = clean(b.code, 8).toUpperCase();
@@ -405,19 +424,6 @@ Deno.serve(async (req) => {
     const me = await participantOf(sql, s.id, key);
     if (!me) throw new HttpError(403, '이 수업에 들어온 기록이 없어요. 다시 입장해 주세요.');
     const isHost = s.host_key === key;
-
-    if (path === '/workbook' && isGet) {
-      const g = clean(q.get('group'), 20) || me.breakout_group || 'main';
-      if (!/^(main|group-[1-9][0-9]?)$/.test(g)) throw new HttpError(400, '모둠 이름이 올바르지 않습니다.');
-      const [note] = await sql`select group_id, content, updated_by, updated_at from forum.workbook_notes where session_id = ${s.id} and group_id = ${g}`;
-      return json(req, 200, note ?? { group_id: g, content: '', updated_by: '', updated_at: null });
-    }
-
-    if (path === '/reports' && isGet) {
-      needHost(s, key);
-      const rows = await sql`select id, summary, feedback_json, model, created_at from forum.ai_reports where session_id = ${s.id} order by id desc limit 20`;
-      return json(req, 200, { reports: rows });
-    }
 
     // ---------- 타임라인 ----------
     if (path === '/session/timeline') {

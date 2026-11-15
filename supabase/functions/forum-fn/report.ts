@@ -126,7 +126,7 @@ const SYSTEM = [
   'summary 는 3~5문장, students 는 발화가 있었던 학생 각각에 대해 note 한두 문장, tips 는 교사용 3~4개.',
 ].join(' ');
 
-export async function buildReport(state: StateLike): Promise<{ report: Report; model: string; fallback: boolean }> {
+export async function buildReport(state: StateLike): Promise<{ report: Report; model: string; fallback: boolean; reason?: string }> {
   const m = metricsOf(state);
   const base = ruleReport(state, m);
   try {
@@ -158,7 +158,8 @@ export async function buildReport(state: StateLike): Promise<{ report: Report; m
     };
     return { report, model: ai.model || ai.provider || 'hub-ai', fallback: false };
   } catch (e) {
-    console.error('ai-report', (e as Error).message);
-    return { report: base, model: 'rule', fallback: true };
+    const reason = String((e as Error)?.message ?? e).slice(0, 300);
+    console.error('ai-report', reason);
+    return { report: base, model: 'rule', fallback: true, reason };
   }
 }
