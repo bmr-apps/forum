@@ -192,17 +192,17 @@ a { color: inherit; }
 .grid {
   flex: 1; display: grid; gap: 8px; align-content: start;
   grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
-  grid-auto-rows: min-content; overflow-y: auto; min-height: 0;
+  grid-auto-rows: 1fr; overflow-y: auto; min-height: 0;
   scrollbar-width: thin;
 }
 .grid.many { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 .grid.breakout { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .tile {
-  position: relative; aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden;
+  position: relative; min-height: 96px; border-radius: 12px; overflow: hidden;
   background: #17242c; border: 1px solid var(--dark-line);
   transition: border-color .15s, box-shadow .15s;
 }
-.tile.spot { grid-column: span 2; grid-row: span 2; aspect-ratio: 16 / 9; }
+.tile.spot { grid-column: span 2; grid-row: span 2; }
 .tile video { width: 100%; height: 100%; object-fit: cover; display: none; background: #0b1319; }
 .tile.video-on video { display: block; }
 .tile-av {
@@ -443,7 +443,7 @@ a { color: inherit; }
   .home { padding: 16px 12px 40px; }
   .steps-info { grid-template-columns: 1fr; }
   .rm-head b { max-width: 52vw; font-size: 14px; }
-  .grid { grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 6px; }
+  .grid { grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 6px; grid-auto-rows: minmax(80px, 1fr); }
   .grid.many { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
   .tile.spot { grid-column: span 2; grid-row: span 1; }
   .tile-name { font-size: 11px; }
