@@ -1,0 +1,12 @@
+{
+  "slug": "forum",
+  "name": "별무리 액티브 러닝 포럼",
+  "schema": "forum",
+  "db_role": "forum_dev",
+  "bucket": "forum",
+  "function": "forum-fn",
+  "secret_prefix": "FORUM_",
+  "supabase_ref": "psupfmarnyxontorftio",
+  "url": "https://apps.bmrschool.net/forum/",
+  "template": "bmr-app-templates v2"
+}
