@@ -1,7 +1,16 @@
 # 별무리 액티브 러닝 포럼 · 개발 안내
 
-BMR APPS 에서 준비해 드린 **빈 개발 환경**입니다. 화면, 데이터 구조, 로그인 규칙은 모두 개발자가 직접 정해서 만드시면 됩니다.
-지금 앱 주소에는 **'준비 중인 페이지입니다'** 라는 간단한 안내만 보입니다. `index.html` 을 내 앱 화면으로 바꿔 올리면 바로 바뀝니다.
+**12명 안팎의 액티브 러닝 화상 수업**을 BMR APPS 안에서만 돌리는 교실입니다(미네르바 스쿨의 Forum 방식).
+외부 화상 서비스 없이 Supabase Realtime(신호·방송) + WebRTC P2P 로 소리·영상을 주고받고,
+발화량·즉석 투표·소그룹 분반·공동 워크북·수업 후 AI 리포트를 한 화면에서 다룹니다.
+
+- 앱: https://apps.bmrschool.net/forum/ · 체험 모드: `?preview=1` (학생 12명 시뮬레이션)
+- 화면 코드: `index.html` + `src/main.js`(입구) · `src/room.js`(교실) · `src/rtc.js`(화상) · `src/preview.js`(체험 모드)
+- 서버: `supabase/functions/forum-fn/` (`index.ts` 라우터 · `schema.ts` 표 · `report.ts` AI 리포트)
+- 표는 함수가 처음 살아날 때 스스로 만듭니다(`ensureSchema`). 손으로 돌리려면 `supabase/migrations/` + `npm run db:migrate`.
+- 브라우저에는 표 권한을 주지 않습니다 — 읽기·쓰기는 모두 `forum-fn` 을 지납니다.
+
+아래는 BMR APPS 개발 환경 공통 안내입니다. 화면·표·로그인 규칙은 이 앱에 맞게 이미 고쳐 두었습니다.
 파비콘은 허브 카드 꾸미기에서 정한 아이콘이 자동으로 쓰입니다. 직접 바꾸고 싶으면 `index.html` 의 `link rel="icon"` 태그를 바꾸면 됩니다.
 
 > 개발 정보(접속 정보·이름·예제 코드)는 이 README 와 **BMR APPS 허브 → 대시보드 → 내 서비스 → 개발 정보**(담당자·관리자만 보임)에서 볼 수 있습니다.

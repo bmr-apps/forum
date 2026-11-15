@@ -3,31 +3,171 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>별무리 액티브 러닝 포럼 · 준비 중 · BMR APPS</title>
-<meta name="description" content="별무리 액티브 러닝 포럼 — 준비 중인 페이지입니다 (BMR APPS)">
+<title>별무리 액티브 러닝 포럼 · BMR APPS</title>
+<meta name="description" content="별무리 액티브 러닝 포럼 — 12명 소그룹 화상 수업, 발화량·즉석 투표·소그룹 분반·공동 워크북을 한 화면에서">
 <meta name="theme-color" content="#0abbee">
 <meta name="robots" content="noindex">
 <link rel="icon" href="https://psupfmarnyxontorftio.supabase.co/functions/v1/hub-favicon?slug=forum">
 </head>
 <body>
-<!-- 준비 중 안내 페이지입니다. 앱을 만들면 이 파일(index.html)을 내 앱 화면으로 바꾸세요.
-     개발에 필요한 정보는 BMR APPS 허브의 '내 서비스 정보 → 개발 정보'와 저장소 README.md 에 있습니다. -->
+<a class="skip" href="#home">수업 입장으로 건너뛰기</a>
+
 <header class="top">
-  <a class="mark" href="https://apps.bmrschool.net/" aria-label="BMR APPS 메인 화면"><span>BMR</span><span>APPS</span></a>
+  <a class="mark" href="./" aria-label="별무리 액티브 러닝 포럼 홈">
+    <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true" focusable="false">
+      <rect x="1" y="1" width="38" height="38" rx="7" fill="none" stroke="currentColor" stroke-width="2"></rect>
+      <path d="M10 13.5h13.5v8.2H14.6L10 25.8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"></path>
+      <path d="M18.5 24.5h11v7l-3.4-2.6h-7.6z" fill="currentColor"></path>
+      <path d="M29.4 8.2l1.3 2.7 2.7 1.3-2.7 1.3-1.3 2.7-1.3-2.7-2.7-1.3 2.7-1.3z" fill="currentColor"></path>
+    </svg>
+  </a>
+  <div class="brand">
+    <b data-app-name>별무리 액티브 러닝 포럼</b>
+    <small>발화량 · 투표 · 소그룹 분반 · 워크북</small>
+  </div>
+  <div class="top-right">
+    <span id="who" class="who" hidden></span>
+    <button id="login" class="btn ghost small" type="button" title="구글 계정으로 들어오면 진행자 신분이 기기에 묶이지 않습니다">구글 로그인</button>
+    <button id="logout" class="btn ghost small" type="button" hidden>로그아웃</button>
+  </div>
 </header>
-<main class="wrap">
+
+<div id="boot" class="boot" role="status" hidden><p class="boot-txt">포럼을 여는 중…</p></div>
+
+<!-- ========== 처음 화면: 수업 열기 / 코드로 참여 ========== -->
+<main id="home" class="home">
   <section class="hero">
-    <div class="copy">
-      <span class="eyebrow">준비 중</span>
-      <h1 data-app-name>별무리 액티브 러닝 포럼</h1>
-      <p class="desc" data-app-desc hidden></p>
-      <p class="notice"><b>준비 중인 페이지입니다.</b> 곧 이 주소에서 서비스를 열 예정이에요.</p>
-      <a class="btn" href="https://apps.bmrschool.net/">BMR APPS 서비스 둘러보기</a>
+    <div class="hero-copy">
+      <span class="eyebrow">BMR APPS · 액티브 러닝 화상 교실</span>
+      <h1>별무리<br>액티브 러닝 포럼</h1>
+      <p class="desc">강의 대신 <b>모두가 말하는 수업</b>. 발화량을 실시간으로 보고, 투표로 의견을 모으고, 의견이 다른 사람끼리 소그룹으로 나눠 토론한 뒤 모둠 워크북으로 정리합니다. 외부 화상 서비스 없이 BMR APPS 안에서만 돕니다.</p>
+      <ul class="feat">
+        <li><b>발화량</b> — 학생별 말한 시간을 실시간 집계, 적게 말한 학생은 주황색</li>
+        <li><b>타임라인</b> — 도입·투표·분반·정리 단계를 버튼 한 번으로 진행</li>
+        <li><b>소그룹 분반</b> — 찬반 의견이 다른 사람끼리 3~4명으로 자동 매칭</li>
+        <li><b>공동 워크북 · AI 리포트</b> — 모둠 기록과 수업 후 참여 리포트</li>
+      </ul>
     </div>
-    <div class="art" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><i class="e"></i><i class="f"></i></div>
+
+    <div class="panel-card">
+      <div class="tabs" role="tablist" aria-label="수업 시작 방법">
+        <button class="tab on" type="button" role="tab" data-tab="join" aria-selected="true">코드로 참여</button>
+        <button class="tab" type="button" role="tab" data-tab="new" aria-selected="false">수업 열기(교사)</button>
+      </div>
+
+      <form id="form-join" class="pane" autocomplete="off">
+        <label class="lbl" for="join-code">입장 코드</label>
+        <input id="join-code" class="in code-in" inputmode="latin" maxlength="8" placeholder="예: K7M2QP" spellcheck="false">
+        <p id="join-preview" class="hint" role="status"></p>
+        <label class="lbl" for="join-name">내 이름</label>
+        <input id="join-name" class="in" maxlength="40" placeholder="예: 김하늘">
+        <button class="btn primary wide" type="submit">수업 들어가기</button>
+        <p class="hint">구글 로그인 없이 코드와 이름만으로 들어옵니다. 선생님은 ‘수업 열기’로 방을 만드세요.</p>
+      </form>
+
+      <form id="form-new" class="pane" hidden autocomplete="off">
+        <label class="lbl" for="new-title">수업 제목</label>
+        <input id="new-title" class="in" maxlength="120" placeholder="예: 10학년 중핵 — 정의란 무엇인가">
+        <label class="lbl" for="new-host">내 이름 (진행자)</label>
+        <input id="new-host" class="in" maxlength="40" placeholder="예: 조은길">
+        <button class="btn primary wide" type="submit">수업 방 만들기</button>
+        <p class="hint">방을 만들면 입장 코드가 생기고, 기본 타임라인(도입 → 투표 → 분반 → 정리)이 함께 준비됩니다.</p>
+      </form>
+
+      <div class="preview-line">
+        <button id="preview-btn" class="btn ghost wide" type="button">체험 모드로 둘러보기 (학생 12명 시뮬레이션)</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="steps-info" aria-label="수업 흐름">
+    <article><span class="n">1</span><h3>도입 질문</h3><p>질문을 던지고 1분 생각 시간. 발화량 측정이 시작됩니다.</p></article>
+    <article><span class="n">2</span><h3>즉석 투표</h3><p>찬반·객관식·한 줄 의견. 결과가 바로 막대로 보입니다.</p></article>
+    <article><span class="n">3</span><h3>소그룹 분반</h3><p>의견이 다른 사람끼리 3~4명. 분반에서는 화질이 올라갑니다.</p></article>
+    <article><span class="n">4</span><h3>전체 정리</h3><p>모둠 워크북을 함께 보고, 수업 후 AI 참여 리포트를 받습니다.</p></article>
   </section>
 </main>
-<footer class="foot">별무리 개발자들이 함께 만들고 나누는 공간 · <a href="https://apps.bmrschool.net/">BMR APPS</a></footer>
+
+<!-- ========== 수업 화면 ========== -->
+<main id="room" class="room" hidden>
+  <header class="rm-top">
+    <div class="rm-head">
+      <b id="rm-title">수업</b>
+      <div class="rm-meta">
+        <button id="rm-code" class="chip code" type="button" title="입장 코드를 복사합니다">코드 <b>------</b></button>
+        <span id="rm-step" class="chip">1/4 · 도입</span>
+        <span id="rm-count" class="chip">0명</span>
+        <span id="rm-clock" class="chip clock" title="수업 경과 시간">00:00</span>
+        <span id="rm-mode" class="chip mode" hidden></span>
+      </div>
+    </div>
+    <div class="rm-top-btns">
+      <button id="rm-share" class="btn ghost small" type="button" title="입장 코드와 링크 복사">🔗 초대</button>
+      <button id="rm-rail-toggle" class="btn icon small mobile-only" type="button" aria-label="수업 패널 열기" aria-controls="rm-rail" aria-expanded="false">☰</button>
+      <button id="rm-leave" class="btn ghost small danger" type="button">나가기</button>
+    </div>
+  </header>
+
+  <div id="rm-banner" class="banner" hidden>
+    <span id="rm-banner-text"></span>
+    <button id="rm-banner-act" class="btn small primary" type="button" hidden></button>
+  </div>
+
+  <div class="rm-body">
+    <section class="rm-stage">
+      <div id="rm-grid" class="grid" role="list" aria-label="참가자 화면"></div>
+      <div id="rm-empty" class="stage-empty" hidden>
+        <p><b>아직 카메라를 켜지 않았어요.</b> 아래 <b>카메라</b> 버튼을 누르면 내 화면이 보입니다. 카메라가 없어도 소리로 참여할 수 있어요.</p>
+      </div>
+    </section>
+
+    <aside id="rm-rail" class="rail" aria-label="수업 패널">
+      <nav class="rail-tabs" role="tablist">
+        <button class="rtab on" type="button" role="tab" data-pane="flow">진행</button>
+        <button class="rtab" type="button" role="tab" data-pane="poll">투표</button>
+        <button class="rtab" type="button" role="tab" data-pane="people">참여자</button>
+        <button class="rtab" type="button" role="tab" data-pane="book">워크북</button>
+        <button class="rtab" type="button" role="tab" data-pane="groups">모둠</button>
+      </nav>
+      <div class="rail-body">
+        <section id="pane-flow" class="pane-rail"></section>
+        <section id="pane-poll" class="pane-rail" hidden></section>
+        <section id="pane-people" class="pane-rail" hidden></section>
+        <section id="pane-book" class="pane-rail" hidden></section>
+        <section id="pane-groups" class="pane-rail" hidden></section>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="rm-bar">
+    <div class="bar-left">
+      <button id="me-mic" class="btn mic on" type="button" aria-pressed="true" title="마이크 켜기/끄기 (M)">🎙️ <span>마이크</span></button>
+      <button id="me-cam" class="btn cam off" type="button" aria-pressed="false" title="카메라 켜기/끄기 (V)">📷 <span>카메라</span></button>
+      <button id="me-talk" class="btn ghost talk" type="button" tabindex="-1" title="내 발화 시간">말한 시간 <b>0:00</b></button>
+    </div>
+    <div class="bar-right" id="bar-host">
+      <button id="host-poll" class="btn ghost" type="button">📊 투표 열기</button>
+      <button id="host-break" class="btn ghost" type="button">👥 분반</button>
+      <button id="host-report" class="btn ghost" type="button">🤖 AI 리포트</button>
+      <button id="host-next" class="btn primary" type="button">다음 단계 ▶</button>
+    </div>
+  </footer>
+</main>
+
+<!-- ========== 대화상자 ========== -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <header class="modal-head">
+      <h2 id="modal-title">투표</h2>
+      <button id="modal-x" class="btn icon" type="button" aria-label="닫기">✕</button>
+    </header>
+    <div id="modal-body" class="modal-body"></div>
+    <footer id="modal-foot" class="modal-foot"></footer>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
 <script type="module" src="/src/main.js"></script>
 </body>
 </html>
